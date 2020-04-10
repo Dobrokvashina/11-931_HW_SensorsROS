@@ -9,8 +9,6 @@ import math
 temp_msgs = []
 range_msgs = []
 
-bag = rosbag.Bag("test.bag", 'w')
-
 def waitForTime():
     time.sleep(300)
     rospy.signal_shutdown("Shutting down the node")
