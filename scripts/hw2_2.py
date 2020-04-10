@@ -6,24 +6,32 @@ import threading
 import time
 import math
 
+temp_msgs = []
+range_msgs = []
+
 bag = rosbag.Bag("test.bag", 'w')
 
 def waitForTime():
-    time.sleep(900)
+    time.sleep(300)
     rospy.signal_shutdown("Shutting down the node")
-    bag.close()
+    print("writting")
+    time.sleep(3)
+
+    with rosbag.Bag("test.bag", 'w') as bag:
+
+                for msg in temp_msgs:
+                    bag.write('/temperature',msg, msg.header.stamp)
+
+                for msg in range_msgs:
+                    bag.write('/sound',msg, msg.header.stamp)
+
+    print("finished")
 
 def temp_callback(msg):
-    try:
-        bag.write('/temperature', msg, rospy.Time.now())
-    except Exception:
-        print("error temp")
+    temp_msgs.append(msg)
 
 def range_callback(msg):
-    try:
-        bag.write('/sound', msg, rospy.Time.now())
-    except Exception:
-        print("error range")
+    range_msgs.append(msg)
 
 
 def collect():
@@ -37,6 +45,7 @@ if __name__ == '__main__':
                 rospy.init_node('hw2_2', anonymous=False)
                 wait_thread = threading.Thread(target=waitForTime)
                 wait_thread.start()
+                print("started")
                 collect()
         except rospy.ROSInterruptException:
                 pass
